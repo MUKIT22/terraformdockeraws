@@ -15,7 +15,7 @@ module "ec2_private" {
   vpc_security_group_ids = [module.private_sg.security_group_id]
   user_data = <<-EOT
                 #!/bin/bash
-                sudo touch cvf.txt
+                
 
                 
                 EOT

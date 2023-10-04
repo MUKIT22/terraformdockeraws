@@ -1,16 +1,24 @@
 #!/bin/bash
-# Add Docker's official GPG key:
-sudo apt-get update
-sudo apt-get install ca-certificates curl gnupg
-sudo install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-sudo chmod a+r /etc/apt/keyrings/docker.gpg
+REPO_URL='https://github.com/MUKIT22/vprofile-project'
+COMPOSE_VERSION='latest'
 
-# Add the repository to Apt sources:
-echo \
-  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
+# Clone the repo using git clone command
+sudo git clone "$REPO_URL"
 
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+# Change directory to the project directory using cd command
+cd vprofile-project
+
+sudo git checkout containers
+
+# Install required packages
+sudo apt update -y
+sudo apt install docker.io -y
+sudo apt install python3-pip -y
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.1.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+# Create directory for apt keyrings
+sudo apt install docker-compose -y
+
+# Run docker-compose up using docker-compose command
+sudo docker-compose up -d

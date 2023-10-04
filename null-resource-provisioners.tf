@@ -9,19 +9,19 @@ resource "null_resource" "name" {
     type        = "ssh"
     host        = aws_eip.public_instance_eip.public_ip
     user        = "ubuntu"
-    private_key = file("private-key/219.pem")
+    private_key = file("private-key/310.pem")
   }
 
-  # File Provisioner: Copies the terraform-key.pem file to /tmp/219.pem on Bastion Host
+  # File Provisioner: Copies the terraform-key.pem file to /tmp/310.pem on Bastion Host
   provisioner "file" {
-    source      = "private-key/219.pem"
-    destination = "/tmp/219.pem"
+    source      = "private-key/310.pem"
+    destination = "/tmp/310.pem"
   }
 
   # Remote Exec Provisioner: Using remote-exec provisioner, fix the private key permissions on Bastion Host
   provisioner "remote-exec" {
     inline = [
-      "sudo chmod 400 /tmp/219.pem"
+      "sudo chmod 400 /tmp/310.pem"
     ]
   }
 
@@ -29,80 +29,28 @@ resource "null_resource" "name" {
   provisioner "remote-exec" {
     when    = create
     inline = [
-      "sudo ssh -o 'StrictHostKeyChecking no' -i /tmp/219.pem ubuntu@${module.ec2_private[0].private_ip} 'sudo touch rtyu.txt'",
+      "sudo ssh -o 'StrictHostKeyChecking no' -i /tmp/310.pem ubuntu@${module.ec2_private[0].private_ip} 'sudo apt update -y'",
+      "sudo ssh -o 'StrictHostKeyChecking no' -i /tmp/310.pem ubuntu@${module.ec2_private[0].private_ip}  'git clone https://github.com/MUKIT22/vprofile-project'",
 
-      # Define the GitHub repo URL and the project directory name
-      "REPO_URL='https://github.com/MUKIT22/vprofile-project'",
+      "sudo ssh -o 'StrictHostKeyChecking no' -i /tmp/310.pem ubuntu@${module.ec2_private[0].private_ip}  'sudo apt install docker.io -y'",
+      "sudo ssh -o 'StrictHostKeyChecking no' -i /tmp/310.pem ubuntu@${module.ec2_private[0].private_ip}  'sudo apt install python3-pip -y'",
+      "sudo ssh -o 'StrictHostKeyChecking no' -i /tmp/310.pem ubuntu@${module.ec2_private[0].private_ip}  'sudo curl -L 'https://github.com/docker/compose/releases/download/v2.3.3/docker-compose-Linux-x86_64' -o /usr/local/bin/docker-compose'",
+      "sudo ssh -o 'StrictHostKeyChecking no' -i /tmp/310.pem ubuntu@${module.ec2_private[0].private_ip}  'sudo chmod +x /usr/local/bin/docker-compose'",
+      "sudo ssh -o 'StrictHostKeyChecking no' -i /tmp/310.pem ubuntu@${module.ec2_private[0].private_ip}  'sudo apt install docker-compose -y'",
+      "sudo ssh -o 'StrictHostKeyChecking no' -i /tmp/310.pem ubuntu@${module.ec2_private[0].private_ip}  'cd vprofile-project && sudo git checkout containers && sudo docker-compose up -d'",
 
-      # Clone the repo using git clone command
-      "sudo git clone $REPO_URL",
+      "sudo ssh -o 'StrictHostKeyChecking no' -i /tmp/310.pem ubuntu@${module.ec2_private[1].private_ip} 'sudo apt update -y'",
+      "sudo ssh -o 'StrictHostKeyChecking no' -i /tmp/310.pem ubuntu@${module.ec2_private[1].private_ip}  'git clone https://github.com/MUKIT22/vprofile-project'",
 
-      # Change directory to the project directory using cd command
-      "cd vprofile-project",
+      "sudo ssh -o 'StrictHostKeyChecking no' -i /tmp/310.pem ubuntu@${module.ec2_private[1].private_ip}  'sudo apt install docker.io -y'",
+      "sudo ssh -o 'StrictHostKeyChecking no' -i /tmp/310.pem ubuntu@${module.ec2_private[1].private_ip}  'sudo apt install python3-pip -y'",
+      "sudo ssh -o 'StrictHostKeyChecking no' -i /tmp/310.pem ubuntu@${module.ec2_private[1].private_ip}  'sudo curl -L 'https://github.com/docker/compose/releases/download/v2.3.3/docker-compose-Linux-x86_64' -o /usr/local/bin/docker-compose'",
+      "sudo ssh -o 'StrictHostKeyChecking no' -i /tmp/310.pem ubuntu@${module.ec2_private[1].private_ip}  'sudo chmod +x /usr/local/bin/docker-compose'",
+      "sudo ssh -o 'StrictHostKeyChecking no' -i /tmp/310.pem ubuntu@${module.ec2_private[1].private_ip}  'sudo apt install docker-compose -y'",
+      "sudo ssh -o 'StrictHostKeyChecking no' -i /tmp/310.pem ubuntu@${module.ec2_private[1].private_ip}  'cd vprofile-project && sudo git checkout containers && sudo docker-compose up -d'",
 
-      "sudo git checkout containers",
-
-      # Install required packages
-      "yes |sudo apt-get install -y ca-certificates curl gnupg",
-
-      # Create directory for apt keyrings
-      "yes |sudo install -m 0755 -d /etc/apt/keyrings",
-
-      # Download Docker GPG key
-      "curl -fsSL https://download.docker.com/linux/ubuntu/gpg |yes | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg",
-
-      # Set permissions for the GPG key
-      "yes |sudo chmod a+r /etc/apt/keyrings/docker.gpg",
-
-      # Add the Docker repository to Apt sources
-      "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null",
-
-      # Update Apt package lists
-      "sudo apt-get update -y",
-
-      # Install Docker and related packages
-      "sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
-
-      # Run docker compose up using docker-compose command
-      "sudo docker-compose up -d",
-      
-      
-      # Repeat the same commands for the second private instance
-      "sudo ssh -o 'StrictHostKeyChecking no' -i /tmp/219.pem ubuntu@${module.ec2_private[1].private_ip} 'sudo touch rtyu.txt'",
-            # Define the GitHub repo URL and the project directory name
-      "REPO_URL='https://github.com/MUKIT22/vprofile-project'",
-      
-      # Clone the repo using git clone command
-      "sudo git clone $REPO_URL",
-      
-      # Change directory to the project directory using cd command
-      "cd vprofile-project",
-      
-      "sudo git checkout containers",
-            # Install required packages
-      "sudo apt-get install -y ca-certificates curl gnupg",
-
-      # Create directory for apt keyrings
-      "sudo install -m 0755 -d /etc/apt/keyrings",
-
-      # Download Docker GPG key
-      "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg",
-
-      # Set permissions for the GPG key
-      "sudo chmod a+r /etc/apt/keyrings/docker.gpg",
-
-      # Add the Docker repository to Apt sources
-      "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null",
-
-      # Update Apt package lists
-      "sudo apt-get update -y",
-
-      # Install Docker and related packages
-      "sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
-
-      # Run docker compose up using docker-compose command
-      "sudo docker-compose up -d"
     ]
   }
 }
+
 
